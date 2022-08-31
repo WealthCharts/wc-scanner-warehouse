@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "boto",
+        "dotenv",
+        "pyarrow",
+        "timeframe"
+    ],
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "autopep8",
+}
