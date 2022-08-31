@@ -4,7 +4,7 @@ import os
 import mysql.connector
 from cache import redis_client
 
-MYSQL_CACHE_TIME=int(os.getenv('MYSQL_CACHE_TIME'))
+MYSQL_CACHE_TIME=int(os.getenv('MYSQL_CACHE_TIME')) or 60 * 60
 
 
 mysql_quotes = mysql.connector.connect(host=os.getenv('MYSQL_QUOTES_IP_DB_PRIVATE')
