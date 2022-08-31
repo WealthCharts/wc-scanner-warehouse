@@ -73,7 +73,7 @@ port = int(os.environ.get('PORT', 5000))
 
 
 if __name__ == '__main__':
-    if os.environ.get('FLASK_ENV') == 'development':
+    if os.environ.get('FLASK_DEBUG') == '1':
         app.run(debug=True, host='localhost', port=port)
     else:
         app.run(debug=False, port=port)
