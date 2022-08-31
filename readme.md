@@ -1,7 +1,11 @@
+### create a new environment
+```bash
+virtualenv venv
+```
 
 ### activate the environment
 ```bash
-source ./virt/Scripts/activate
+source ./venv/Scripts/activate
 ```
 
 ### install dependencies

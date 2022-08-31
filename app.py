@@ -2,7 +2,9 @@
 import json
 import os
 from dotenv import load_dotenv
+
 from flask import Flask, jsonify, request
+
 from cache import redis_client
 
 if os.path.isfile('.env'):
@@ -12,7 +14,7 @@ if os.path.isfile('.env'):
 import models
 import s3
 
-# if file .env is present, load it
+URL_CACHE_TIME=int(os.getenv('URL_CACHE_TIME')) or 60 * 60
 
 
 application = Flask(__name__)
@@ -57,7 +59,7 @@ def scanner(fx: str, date: str, timeframe: int):
             if row['symbol'] in symbols:
                 row['data'] = json.loads(row['data'].replace("'", '"'))
                 response.append(row)
-        redis_client.set(url, json.dumps(response), ex=60)
+        redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
         return response
 
     if watchlist is not None and isinstance(watchlist, int):
@@ -66,14 +68,14 @@ def scanner(fx: str, date: str, timeframe: int):
             if row['symbol'] in watchlist:
                 row['data'] = json.loads(row['data'].replace("'", '"'))
                 response.append(row)
-        redis_client.set(url, json.dumps(response), ex=60)
+        redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
         return response
 
     for row in result:
         row['data'] = json.loads(row['data'].replace("'", '"'))
         response.append(row)
 
-    redis_client.set(url, json.dumps(response), ex=60)
+    redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
     return response
 
 port = int(os.environ.get('PORT', 5000))

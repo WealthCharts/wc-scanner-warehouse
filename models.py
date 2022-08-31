@@ -4,6 +4,9 @@ import os
 import mysql.connector
 from cache import redis_client
 
+MYSQL_CACHE_TIME=int(os.getenv('MYSQL_CACHE_TIME'))
+
+
 mysql_quotes = mysql.connector.connect(host=os.getenv('MYSQL_QUOTES_IP_DB_PRIVATE') if os.getenv('MYSQL_PRIVATE_IP') == '1' else os.getenv('MYSQL_QUOTES_IP_DB_PUBLIC'),
                                        user=os.getenv('MYSQL_QUOTES_USER'),
                                        password=os.getenv('MYSQL_QUOTES_PASSWORD'),
@@ -31,7 +34,7 @@ def get_symbols(basket: int):
 
     symbols = [symbol[0] for symbol in symbols]
 
-    redis_client.set(basket, json.dumps(symbols), ex=60 * 60 * 24)
+    redis_client.set(basket, json.dumps(symbols), ex=MYSQL_CACHE_TIME)
 
     return symbols
 
