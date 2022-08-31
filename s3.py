@@ -2,17 +2,16 @@
 import boto3
 import json
 import io
+import os
 import pandas as pd
-from dotenv import dotenv_values
 from cache import redis_client
 
-config = dotenv_values(".env")
 
 s3 = boto3.client(
     's3',
-    aws_access_key_id=config['AWS_ACCESS_KEY_ID'],
-    aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
-    region_name=config['AWS_DEFAULT_REGION']
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+    region_name=os.getenv('AWS_DEFAULT_REGION')
 )
 
 
@@ -23,7 +22,7 @@ def get_file(fx: str, date: str, timeframe: int):
     if cache is not None:
         return json.loads(cache)
 
-    resp = s3.get_object(Bucket=config['AWS_BUCKET_NAME'], Key=key)
+    resp = s3.get_object(Bucket=os.getenv('AWS_BUCKET_NAME'), Key=key)
 
     if resp['ContentLength'] == 0:
         return 'File not found'
@@ -45,5 +44,5 @@ def get_file(fx: str, date: str, timeframe: int):
 
 def put_file(key, data):
     """put file to s3"""
-    resp = s3.put_object(Bucket=config['AWS_BUCKET_NAME'], Key=key, Body=data, ContentType='application/x-parquet')
+    resp = s3.put_object(Bucket=os.getenv('AWS_BUCKET_NAME'), Key=key, Body=data, ContentType='application/x-parquet')
     return resp
