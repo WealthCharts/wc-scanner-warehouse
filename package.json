@@ -1,0 +1,25 @@
+{
+  "name": "flask",
+  "version": "1.0.0",
+  "description": "wc-scanner-warehouse",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "init": "virtualenv venv",
+    "activate": "source venv/bin/activate",
+    "deactivate": "deactivate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/WealthCharts2/wc-scanner-warehouse.git"
+  },
+  "keywords": [
+    "scanner"
+  ],
+  "author": "@BarquinDev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/WealthCharts2/wc-scanner-warehouse/issues"
+  },
+  "homepage": "https://gitlab.com/WealthCharts2/wc-scanner-warehouse#readme"
+}

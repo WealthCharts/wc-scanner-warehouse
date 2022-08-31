@@ -7,10 +7,15 @@
         "timeframe",
         "watchlist"
     ],
-    "editor.formatOnType": true,
-    "editor.formatOnPaste": true,
-    "editor.formatOnSave": true,
+    
     "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": ["--max-line-length", "120", "--experimental"],
+    "[python]": {
+        "editor.defaultFormatter": null,
+        "editor.formatOnType": false,
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": false,
+    }
     // "python.defaultInterpreterPath": "venv/bin/python",
     // "python.linting.pylintPath": "venv/bin/pylint"
 }

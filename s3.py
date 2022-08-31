@@ -35,8 +35,6 @@ def get_file(fx: str, date: str, timeframe: int):
     result = pd.read_parquet(buffer).query('fx == @fx and timeframe == @timeframe')
 
     scanner_list = json.loads(result.to_json(orient='records'))
-    # for scanner in scanner_list:
-    #     scanner['data'] = json.loads(scanner['data'].replace("'", '"'))
 
     redis_client.set(key, json.dumps(scanner_list), ex=60)
     return scanner_list

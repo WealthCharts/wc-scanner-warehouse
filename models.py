@@ -7,15 +7,19 @@ from cache import redis_client
 MYSQL_CACHE_TIME=int(os.getenv('MYSQL_CACHE_TIME'))
 
 
-mysql_quotes = mysql.connector.connect(host=os.getenv('MYSQL_QUOTES_IP_DB_PRIVATE') if os.getenv('MYSQL_PRIVATE_IP') == '1' else os.getenv('MYSQL_QUOTES_IP_DB_PUBLIC'),
-                                       user=os.getenv('MYSQL_QUOTES_USER'),
-                                       password=os.getenv('MYSQL_QUOTES_PASSWORD'),
-                                       database=os.getenv('MYSQL_QUOTES_DATABASE'))
+mysql_quotes = mysql.connector.connect(host=os.getenv('MYSQL_QUOTES_IP_DB_PRIVATE')
+                                            if os.getenv('MYSQL_PRIVATE_IP') == '1'
+                                            else os.getenv('MYSQL_QUOTES_IP_DB_PUBLIC'),
+                                        user=os.getenv('MYSQL_QUOTES_USER'),
+                                        password=os.getenv('MYSQL_QUOTES_PASSWORD'),
+                                        database=os.getenv('MYSQL_QUOTES_DATABASE'))
 
-mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVATE') if os.getenv('MYSQL_PRIVATE_IP') == '1' else os.getenv('MYSQL_WEALTH_IP_DB_PUBLIC'),
-                                       user=os.getenv('MYSQL_WEALTH_USER'),
-                                       password=os.getenv('MYSQL_WEALTH_PASSWORD'),
-                                       database=os.getenv('MYSQL_WEALTH_DATABASE'))
+mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVATE') 
+                                            if os.getenv('MYSQL_PRIVATE_IP') == '1' 
+                                            else os.getenv('MYSQL_WEALTH_IP_DB_PUBLIC'),
+                                        user=os.getenv('MYSQL_WEALTH_USER'),
+                                        password=os.getenv('MYSQL_WEALTH_PASSWORD'),
+                                        database=os.getenv('MYSQL_WEALTH_DATABASE'))
 
 
 def get_symbols(basket: int):

@@ -1,16 +1,9 @@
 """http server for scanner API"""
 import json
 import os
-from dotenv import load_dotenv
-
 from flask import Flask, jsonify, request
-
+import load_env
 from cache import redis_client
-
-if os.path.isfile('.env'):
-    load_dotenv('.env')
-
-
 import models
 import s3
 
@@ -38,12 +31,9 @@ def scanner(fx: str, date: str, timeframe: int):
     watchlist = request.args.get('watchlist') if request.args.get('watchlist') else None
     basket = int(request.args.get('basket')) if request.args.get('basket') else None
 
-    # check if date is valid format YYYYMMDD
     if len(date) != 8:
         return jsonify({'error': 'invalid date'})
-    # if not date.split('-')[0].isdigit() or not date.split('-')[1].isdigit() or not date.split('-')[2].isdigit():
-    #     return jsonify({'error': 'invalid date'})
-
+    
     if basket is None or not isinstance(basket, int):
         basket = 1000
 
@@ -82,7 +72,7 @@ port = int(os.environ.get('PORT', 5000))
 
 
 if __name__ == '__main__':
-    if os.environ.get('FLASK_DEBUG') == '1':
+    if os.environ.get('FLASK_DEBUG') == '1' or load_env.LOCAL:
         application.run(debug=True, host='localhost', port=port)
     else:
         application.run(debug=False, port=port)
