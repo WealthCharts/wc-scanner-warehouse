@@ -1,12 +1,19 @@
 """http server for scanner API"""
 import json
 import os
-
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from cache import redis_client
 
+if os.path.isfile('.env'):
+    load_dotenv('.env')
+
+
 import models
 import s3
+
+# if file .env is present, load it
+
 
 app = Flask(__name__)
 

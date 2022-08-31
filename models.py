@@ -1,23 +1,18 @@
 """MySQL Utilities"""
 import json
+import os
 import mysql.connector
-from dotenv import dotenv_values
 from cache import redis_client
 
+mysql_quotes = mysql.connector.connect(host=os.getenv('MYSQL_QUOTES_IP_DB_PRIVATE') if os.getenv('MYSQL_PRIVATE_IP') == '1' else os.getenv('MYSQL_QUOTES_IP_DB_PUBLIC'),
+                                       user=os.getenv('MYSQL_QUOTES_USER'),
+                                       password=os.getenv('MYSQL_QUOTES_PASSWORD'),
+                                       database=os.getenv('MYSQL_QUOTES_DATABASE'))
 
-config = dotenv_values(".env")
-
-# if MYSQL_PRIVATE_IP == 1: MYSQL_QUOTES_IP_DB_PRIVATE else MYSQL_QUOTES_IP_DB_PUBLIC
-
-mysql_quotes = mysql.connector.connect(host=config['MYSQL_QUOTES_IP_DB_PRIVATE'] if config['MYSQL_PRIVATE_IP'] == '1' else config['MYSQL_QUOTES_IP_DB_PUBLIC'],
-                                       user=config['MYSQL_QUOTES_USER'],
-                                       password=config['MYSQL_QUOTES_PASSWORD'],
-                                       database=config['MYSQL_QUOTES_DATABASE'])
-
-mysql_wealth = mysql.connector.connect(host=config['MYSQL_WEALTH_IP_DB_PRIVATE'] if config['MYSQL_PRIVATE_IP'] == '1' else config['MYSQL_WEALTH_IP_DB_PUBLIC'],
-                                       user=config['MYSQL_WEALTH_USER'],
-                                       password=config['MYSQL_WEALTH_PASSWORD'],
-                                       database=config['MYSQL_WEALTH_DATABASE'])
+mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVATE') if os.getenv('MYSQL_PRIVATE_IP') == '1' else os.getenv('MYSQL_WEALTH_IP_DB_PUBLIC'),
+                                       user=os.getenv('MYSQL_WEALTH_USER'),
+                                       password=os.getenv('MYSQL_WEALTH_PASSWORD'),
+                                       database=os.getenv('MYSQL_WEALTH_DATABASE'))
 
 
 def get_symbols(basket: int):
