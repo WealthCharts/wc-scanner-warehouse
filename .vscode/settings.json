@@ -2,6 +2,7 @@
     "cSpell.words": [
         "boto",
         "dotenv",
+        "jsonify",
         "pyarrow",
         "timeframe"
     ],

@@ -1,5 +1,6 @@
 """http server for scanner API"""
 import json
+import os
 
 from flask import Flask, jsonify, request
 from cache import redis_client
@@ -68,6 +69,11 @@ def scanner(fx: str, date: str, timeframe: int):
     redis_client.set(url, json.dumps(response), ex=60)
     return response
 
+port = int(os.environ.get('PORT', 5000))
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if os.environ.get('FLASK_ENV') == 'development':
+        app.run(debug=True, host='localhost', port=port)
+    else:
+        app.run(debug=False, port=port)
