@@ -15,16 +15,16 @@ import s3
 # if file .env is present, load it
 
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 
-@app.route('/', methods=['GET'])
+@application.route('/', methods=['GET'])
 def index():
     """returns a string"""
     return 'Hello World!'
 
 
-@app.route('/<fx>/<date>/<timeframe>', methods=['GET'])
+@application.route('/<fx>/<date>/<timeframe>', methods=['GET'])
 def scanner(fx: str, date: str, timeframe: int):
     """return scanner results"""
     url = request.url
@@ -81,6 +81,6 @@ port = int(os.environ.get('PORT', 5000))
 
 if __name__ == '__main__':
     if os.environ.get('FLASK_DEBUG') == '1':
-        app.run(debug=True, host='localhost', port=port)
+        application.run(debug=True, host='localhost', port=port)
     else:
-        app.run(debug=False, port=port)
+        application.run(debug=False, port=port)
