@@ -19,8 +19,8 @@ def index():
     return 'Hello World!'
 
 
-@application.route('/<fx>/<date>/<timeframe>', methods=['GET'])
-def scanner(fx: str, date: str, timeframe: int):
+@application.route('/<code>/<date>/<timeframe>', methods=['GET'])
+def scanner(code: str, date: str, timeframe: int):
     """return scanner results"""
     url = request.url
     cache = redis_client.get(url)
@@ -33,14 +33,14 @@ def scanner(fx: str, date: str, timeframe: int):
 
     if len(date) != 8:
         return jsonify({'error': 'invalid date'})
-    
+
     if basket is None or not isinstance(basket, int):
         basket = 1000
 
     if timeframe not in [100000, 200000, 300000]:
         timeframe = 100000
 
-    result = s3.get_file(fx, date, timeframe)
+    result = s3.get_file(code, date, timeframe)
 
     response: list = []
     if basket is not None and isinstance(basket, int):

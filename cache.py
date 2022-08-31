@@ -1,6 +1,6 @@
 """cache"""
-import redis
 import os
+import redis
 
 url = os.getenv('REDIS_URL')
 port = os.getenv('REDIS_PORT')

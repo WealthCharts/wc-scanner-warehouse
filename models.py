@@ -14,8 +14,8 @@ mysql_quotes = mysql.connector.connect(host=os.getenv('MYSQL_QUOTES_IP_DB_PRIVAT
                                         password=os.getenv('MYSQL_QUOTES_PASSWORD'),
                                         database=os.getenv('MYSQL_QUOTES_DATABASE'))
 
-mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVATE') 
-                                            if os.getenv('MYSQL_PRIVATE_IP') == '1' 
+mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVATE')
+                                            if os.getenv('MYSQL_PRIVATE_IP') == '1'
                                             else os.getenv('MYSQL_WEALTH_IP_DB_PUBLIC'),
                                         user=os.getenv('MYSQL_WEALTH_USER'),
                                         password=os.getenv('MYSQL_WEALTH_PASSWORD'),
@@ -52,7 +52,8 @@ def get_watchlist(watchlist: str):
     cursor.execute(
         "SELECT ti.id_tag as symbol "
         "FROM dataindex.watchlist w "
-        "JOIN dataindex.tagindice ti ON (w.id_watchlist = ti.id_indice AND w.id_tabella = ti.id_tabella) "
+        "JOIN dataindex.tagindice ti "
+        "ON (w.id_watchlist = ti.id_indice AND w.id_tabella = ti.id_tabella) "
         "WHERE w.codesterno = %s;",
         (watchlist,))
     symbols = cursor.fetchall()
