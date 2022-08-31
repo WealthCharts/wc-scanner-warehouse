@@ -4,3 +4,5 @@ boto3~=1.24.61
 python-dotenv~=0.20.0
 mysql-connector-python~=8.0.30
 redis~=4.3.4
+pyarrow~=9.0.0
+fastparquet~=0.8.3
