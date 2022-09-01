@@ -54,7 +54,6 @@ def index():
     return jsonify({'message': 'Welcome to the scanner API'}), 200
 
 
-
 @application.route('/<scanner_fx>/<timeframe>', methods=['POST'])
 def scanner_post(scanner_fx: str,  timeframe: int):
     """sync scanner"""
