@@ -38,12 +38,15 @@ def before_request_func():
 @application.after_request
 def after_request_func(response):
     """after request"""
-    # get response headers
-    if request.method == 'GET' and request.path != '/' and response.status_code == 200 and response.headers['cache'] != 'True':
-        print('set cache')
-        string = response.get_data(as_text=True)
-        redis_client.set(request.url, string, ex=URL_CACHE_TIME)
-    return response, 200, {'cache': False}
+    if request.method == 'GET' and response.status_code == 200:
+        if request.path != '/' and response.headers['cache'] != 'True':
+            print('set cache')
+            string = response.get_data(as_text=True)
+            redis_client.set(request.url, string, ex=URL_CACHE_TIME)
+        if response.headers['cache'] != 'True':
+            response.headers['cache'] = False
+    return response
+
 
 @application.route('/', methods=['GET'])
 def index():
