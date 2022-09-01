@@ -23,8 +23,7 @@ mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVAT
                                         database=os.getenv('MYSQL_WEALTH_DATABASE'))
 
 mongo_client = MongoClient(os.getenv('MONGO_DB_CONN_STRING'))
-indicators = mongo_client[os.getenv('INDICATOR_DB_NAME')] \
-                            .get_collection(os.getenv('INDICATOR_COLLECTION_NAME'))
+indicators = mongo_client[os.getenv('INDICATOR_DB_NAME')].get_collection(os.getenv('INDICATOR_COLLECTION_NAME'))
 
 def get_symbols(basket: int):
     """get symbols from basket"""
