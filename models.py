@@ -2,6 +2,7 @@
 import json
 import os
 import mysql.connector
+from pymongo import MongoClient
 from cache import redis_client
 
 MYSQL_CACHE_TIME=int(os.getenv('MYSQL_CACHE_TIME')) or 60 * 60
@@ -21,6 +22,9 @@ mysql_wealth = mysql.connector.connect(host=os.getenv('MYSQL_WEALTH_IP_DB_PRIVAT
                                         password=os.getenv('MYSQL_WEALTH_PASSWORD'),
                                         database=os.getenv('MYSQL_WEALTH_DATABASE'))
 
+mongo_client = MongoClient(os.getenv('MONGO_DB_CONN_STRING'))
+indicators = mongo_client[os.getenv('INDICATOR_DB_NAME')] \
+                            .get_collection(os.getenv('INDICATOR_COLLECTION_NAME'))
 
 def get_symbols(basket: int):
     """get symbols from basket"""
@@ -35,6 +39,9 @@ def get_symbols(basket: int):
     cursor.execute('SELECT l.symbol FROM valori.lista l WHERE l.idpaniere = %s', (basket,))
     symbols = cursor.fetchall()
     cursor.close()
+
+    if len(symbols) == 0:
+        return []
 
     symbols = [symbol[0] for symbol in symbols]
 
@@ -59,4 +66,39 @@ def get_watchlist(watchlist: str):
     symbols = cursor.fetchall()
     cursor.close()
 
+    if len(symbols) == 0:
+        return []
+
     return [symbol[0] for symbol in symbols]
+
+
+def get_indicator_all_fxs() -> list:
+    """get all indicator FXs"""
+    item_details = indicators.aggregate([
+        {'$match': {'timeframe': {'$in': [100000, 200000, 300000]}}},
+        {'$group': {'_id': {"fx": "$fx"}}}
+    ])
+    
+    return [item['_id']['fx'] for item in item_details]
+
+
+def get_indicators(code: str, timeframe: int) -> list:
+    """get indicators from fx and timeframe"""
+    records = indicators.aggregate([
+        {'$match': {'fx': code, 'timeframe': timeframe}},
+        {'$project':
+            {
+                '_id': 0,
+                'symbol': 1,
+                'code': 1,
+                'time': 1,
+                'timeframe': 1,
+                'last_upd': 1,
+                'fx': code,
+                'data':
+                '$data'
+            }
+        }
+    ])
+    
+    return records

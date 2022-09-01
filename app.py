@@ -1,11 +1,15 @@
 """http server for scanner API"""
+# pylint: disable=E1101
+# pylint: disable=E1121
 import json
 import os
+import time
+from datetime import date
 from flask import Flask, jsonify, request
 import load_env
 from cache import redis_client
 import models
-import s3
+import service
 
 URL_CACHE_TIME=int(os.getenv('URL_CACHE_TIME')) or 60 * 60
 
@@ -13,14 +17,51 @@ URL_CACHE_TIME=int(os.getenv('URL_CACHE_TIME')) or 60 * 60
 application = Flask(__name__)
 
 
+
 @application.route('/', methods=['GET'])
 def index():
-    """returns a string"""
-    return 'Hello World!'
+    """index"""
+    return jsonify({'message': 'Welcome to the scanner API'}), 200
+
+
+@application.before_request
+def check_headers_api_key():
+    """check api key"""
+    if request.headers.get('X-API-KEY') != os.getenv('API_KEY'):
+        return jsonify({'error': 'Invalid API key'}), 401
+
+
+@application.before_request
+def before_request_func():
+    """before request"""
+    if request.method == 'GET':
+        cache = redis_client.get(request.url)
+        if cache is not None:
+            return json.loads(cache)
+
+
+@application.after_request
+def after_request_func(response):
+    """after request"""
+    if request.method == 'GET':
+        string = response.get_data(as_text=True)
+        redis_client.set(request.url, string, ex=URL_CACHE_TIME)
+    return response
+
+
+
+@application.route('/<scanner_fx>/<timeframe>', methods=['POST'])
+def scanner_post(scanner_fx: str,  timeframe: int):
+    """sync scanner"""
+    today = date.today().strftime('%Y%m%d')
+    data = models.get_indicators(scanner_fx, timeframe)
+    service.put_file(scanner_fx, today, timeframe, list(data))
+    time.sleep(3)
+    return 'Synced'
 
 
 @application.route('/<code>/<date>/<timeframe>', methods=['GET'])
-def scanner(code: str, date: str, timeframe: int):
+def scanner_get(code: str, scanner_date: str, timeframe: int):
     """return scanner results"""
     url = request.url
     cache = redis_client.get(url)
@@ -31,7 +72,7 @@ def scanner(code: str, date: str, timeframe: int):
     watchlist = request.args.get('watchlist') if request.args.get('watchlist') else None
     basket = int(request.args.get('basket')) if request.args.get('basket') else None
 
-    if len(date) != 8:
+    if int(scanner_date) > 20200101:
         return jsonify({'error': 'invalid date'})
 
     if basket is None or not isinstance(basket, int):
@@ -40,7 +81,7 @@ def scanner(code: str, date: str, timeframe: int):
     if timeframe not in [100000, 200000, 300000]:
         timeframe = 100000
 
-    result = s3.get_file(code, date, timeframe)
+    result = service.get_file(code, scanner_date, timeframe)
 
     response: list = []
     if basket is not None and isinstance(basket, int):
@@ -68,11 +109,9 @@ def scanner(code: str, date: str, timeframe: int):
     redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
     return response
 
-port = int(os.environ.get('PORT', 5000))
-
 
 if __name__ == '__main__':
     if os.environ.get('FLASK_DEBUG') == '1' or load_env.LOCAL:
-        application.run(debug=True, host='localhost', port=port)
+        application.run(debug=True, host='localhost', port=int(os.environ.get('PORT', 5000)))
     else:
-        application.run(debug=False, port=port)
+        application.run(debug=False, port=int(os.environ.get('PORT', 5000)))
