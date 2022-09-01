@@ -72,6 +72,7 @@ def put_file(code: str, date: int, timeframe: int, data: list):
     return resp
 
 def sync_all():
+    """sync all"""
     scanners_fx = models.get_indicator_all_fxs()
     scanners_timeframe = [100000, 200000, 300000]
 

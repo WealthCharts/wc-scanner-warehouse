@@ -18,23 +18,17 @@ application = Flask(__name__)
 
 
 
-@application.route('/', methods=['GET'])
-def index():
-    """index"""
-    return jsonify({'message': 'Welcome to the scanner API'}), 200
-
-
 @application.before_request
 def check_headers_api_key():
     """check api key"""
-    if request.headers.get('X-API-KEY') != os.getenv('API_KEY'):
+    if request.path != '/' and request.headers.get('X-API-KEY') != os.getenv('API_KEY'):
         return jsonify({'error': 'Invalid API key'}), 401
 
 
 @application.before_request
 def before_request_func():
     """before request"""
-    if request.method == 'GET':
+    if request.path != '/' and request.method == 'GET':
         cache = redis_client.get(request.url)
         if cache is not None:
             return json.loads(cache)
@@ -47,6 +41,11 @@ def after_request_func(response):
         string = response.get_data(as_text=True)
         redis_client.set(request.url, string, ex=URL_CACHE_TIME)
     return response
+
+@application.route('/', methods=['GET'])
+def index():
+    """index"""
+    return jsonify({'message': 'Welcome to the scanner API'}), 200
 
 
 
