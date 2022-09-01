@@ -2,10 +2,15 @@
 ```bash
 virtualenv venv
 ```
+#### or
+
+```bash
+py -3.9 -m venv env
+```
 
 ### activate the environment
 ```bash
-source ./venv/Scripts/activate
+venv\Scripts\activate
 ```
 
 ### install dependencies

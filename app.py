@@ -21,7 +21,8 @@ application = Flask(__name__)
 @application.before_request
 def check_headers_api_key():
     """check api key"""
-    if request.path != '/' and request.headers.get('X-API-KEY') != os.getenv('API_KEY'):
+    if request.path != '/' and request.headers.get('x-api-key') != os.getenv('API_KEY'):
+        print('not authorized')
         return jsonify({'error': 'Invalid API key'}), 401
 
 
@@ -31,16 +32,18 @@ def before_request_func():
     if request.path != '/' and request.method == 'GET':
         cache = redis_client.get(request.url)
         if cache is not None:
-            return json.loads(cache)
+            return json.loads(cache), 200, {'cache': True}
 
 
 @application.after_request
 def after_request_func(response):
     """after request"""
-    if request.method == 'GET':
+    # get response headers
+    if request.method == 'GET' and request.path != '/' and response.status_code == 200 and response.headers['cache'] != 'True':
+        print('set cache')
         string = response.get_data(as_text=True)
         redis_client.set(request.url, string, ex=URL_CACHE_TIME)
-    return response
+    return response, 200, {'cache': False}
 
 @application.route('/', methods=['GET'])
 def index():
@@ -59,20 +62,15 @@ def scanner_post(scanner_fx: str,  timeframe: int):
     return 'Synced'
 
 
-@application.route('/<code>/<date>/<timeframe>', methods=['GET'])
+@application.route('/<code>/<scanner_date>/<timeframe>', methods=['GET'])
 def scanner_get(code: str, scanner_date: str, timeframe: int):
     """return scanner results"""
-    url = request.url
-    cache = redis_client.get(url)
-    if cache is not None:
-        return json.loads(cache)
-
     timeframe = int(timeframe)
     watchlist = request.args.get('watchlist') if request.args.get('watchlist') else None
     basket = int(request.args.get('basket')) if request.args.get('basket') else None
 
-    if int(scanner_date) > 20200101:
-        return jsonify({'error': 'invalid date'})
+    if int(scanner_date) < 20200101:
+        return jsonify({'error': 'invalid date'}), 400
 
     if basket is None or not isinstance(basket, int):
         basket = 1000
@@ -89,7 +87,6 @@ def scanner_get(code: str, scanner_date: str, timeframe: int):
             if row['symbol'] in symbols:
                 row['data'] = json.loads(row['data'].replace("'", '"'))
                 response.append(row)
-        redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
         return response
 
     if watchlist is not None and isinstance(watchlist, int):
@@ -98,14 +95,12 @@ def scanner_get(code: str, scanner_date: str, timeframe: int):
             if row['symbol'] in watchlist:
                 row['data'] = json.loads(row['data'].replace("'", '"'))
                 response.append(row)
-        redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
         return response
 
     for row in result:
         row['data'] = json.loads(row['data'].replace("'", '"'))
         response.append(row)
 
-    redis_client.set(url, json.dumps(response), ex=URL_CACHE_TIME)
     return response
 
 
