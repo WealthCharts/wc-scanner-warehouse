@@ -32,19 +32,17 @@ def before_request_func():
     if request.path != '/' and request.method == 'GET':
         cache = redis_client.get(request.url)
         if cache is not None:
-            return json.loads(cache), 200, {'cache': True}
+            return json.loads(cache), 200, {'cache': 'true'}
 
 
 @application.after_request
 def after_request_func(response):
     """after request"""
     if request.method == 'GET' and response.status_code == 200:
-        if request.path != '/' and response.headers['cache'] != 'True':
-            print('set cache')
+        if request.path != '/' and response.headers.get('cache') != 'true':
             string = response.get_data(as_text=True)
             redis_client.set(request.url, string, ex=URL_CACHE_TIME)
-        if response.headers['cache'] != 'True':
-            response.headers['cache'] = False
+            response.headers.add('cache', 'false')
     return response
 
 
